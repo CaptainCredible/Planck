@@ -6,11 +6,26 @@ void loop() {
 
     handleSwitches();
     handleMultiplexers();                                           //handle the multiplexers
+    handleADSR();
+    /*
+    Serial.print("ARCADE1 = ");
+    Serial.println(oldRaw[ARCADE1]);
+    Serial.print("ARCADE2 = ");
+    Serial.println(oldRaw[ARCADE2]);
+    Serial.print("ARCADE3 = ");
+    Serial.println(oldRaw[ARCADE3]);
+    Serial.print("ARCADE4 = ");
+    Serial.println(oldRaw[ARCADE4]);
+    */
     //    handleToggleSwitches();                                         //handle shift and lfo toggle buttons
     if (lfoOnState) {
       //digitalWriteFast(ledPin, HIGH);
       handleLFO();
     }
+
+
+
+
 
 
     if (aFadeIsOn > 0) {                                            // is there a LED fading out

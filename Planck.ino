@@ -1,8 +1,5 @@
 #define DEBUG
 
-
-// END OF FAST PWM SETUP!!!!
-
 /*
   PLANCK CODE, By Daniel Lacey-McDermott
   -programmable via sysex over DIN or USB
@@ -19,6 +16,12 @@
 #include <midi_Settings.h>
 #include <EEPROM.h>
 #include <digitalWriteFast.h>
+
+
+#define ARCADE1 12   //guessed
+#define ARCADE2 13
+#define ARCADE3 14
+#define ARCADE4 15
 
 #define SHIFTBUTTONNO 8
 #define MAPBUTTONNO 9
@@ -60,6 +63,8 @@ long int lfoBounce = 0;             // debounce timer to avoid lfo switch glitch
 bool lastToggleShift = false;       // boolean to remember shift switch state
 bool lastToggleLfo = false;         // boolean to remember lfo switch state
 bool lfoOnState = false;            //boolean to flag lfo on/off state
+bool ADSROnState =true;
+
 bool presetState = false;            //boolean to flag shift on/off state /presets
 bool SHIFT = false;
 bool ledPinState = false;        // keep track of whether we need to spend precious time digitalWriting the ledPin
