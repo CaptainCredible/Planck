@@ -1,7 +1,7 @@
 #define DEBUG
 
 /*
-  PLANCK CODE, By Daniel Lacey-McDermott
+  PLANCK CODE, By Daniel Lacey-McDermott a.k.a. Captain Credible, the international Space Hero
   -programmable via sysex over DIN or USB
   -THRU all notes and CC from DIN to USB
 */
@@ -142,17 +142,17 @@ int oldMIDIVal[32] = {                        // to check if the midi val has ch
 
 //Settings for plexers
 byte DATA1[32] = {                        // CC number / note number
-  1, 2, 3, 4, 40, 41, 42, 46,                //plexer1  eeprom addr 0-7
-  9, 10, 11, 12, 39, 38, 36, 37,        //plexer2   eeprom addr 40 - 47
+  1, 2, 3, 4, 40, 41, 42, 46,                //plexer1  eeprom addr 0-7 
+  9, 10, 11, 12, 39, 38, 36, 37,        //plexer2   eeprom addr 40 - 47  last four are arcade buttons
   17, 18, 19, 20, 21, 22, 23, 24,      //plexer3    eeprom addr 80-87
-  25, 26, 27, 28, 29, 30, 31, 32      //plexer4     eeprom addr 120-127
+  25, 26, 27, 28, 100, 101, 102, 103      //plexer4     eeprom addr 120-127   last four are used as envelope CCs
 };
 
 byte isNote [32] = {              //note or CC
   0, 0, 0, 0, 1, 1, 1, 1,        //plexer1          eeprom addr 8-15
   0, 0, 0, 0, 1, 1, 1, 1,       //plexer2           eeprom addr 48-55
   0, 0, 0, 0, 0, 0, 0, 0,      //plexer3            eeprom addr 88-95
-  0, 0, 0, 0, 0, 0, 0, 0      //plexer4             eeprom addr 128-135
+  0, 0, 0, 0, 0, 0, 0, 0      //plexer4             eeprom addr 128-135  
 };
 
 byte noteIsOn [32] = {          //DOESN'T NEED STORING IN EEPROM

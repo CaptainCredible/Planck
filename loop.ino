@@ -1,3 +1,5 @@
+
+
 void loop() {
 
   //delay(20);                          //debug, makes it easier to see plexer scans and delays
@@ -6,7 +8,10 @@ void loop() {
 
     handleSwitches();
     handleMultiplexers();                                           //handle the multiplexers
-    handleADSR();
+    if(ADSRenabled){
+    handleADSR();  
+    }
+    
     /*
     Serial.print("ARCADE1 = ");
     Serial.println(oldRaw[ARCADE1]);
@@ -28,9 +33,9 @@ void loop() {
 
 
 
-    if (aFadeIsOn > 0) {                                            // is there a LED fading out
+ //   if (aFadeIsOn > 0) {                                            // is there a LED fading out
       //   handleFades();                                                // handle it
-    }
+ //   }
 
 
     if (!lfoOnState) {                                                 // if LFO is off
@@ -39,11 +44,7 @@ void loop() {
         ledPinState = false;
       }
     }
-
   }
-
-
-
 
   if (MIDI.read()) {                                                // did you hear something on the DIN ?
     handleHardwareMidiIn();                                                 // what are we gonna do about that then

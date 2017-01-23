@@ -1,12 +1,14 @@
-int trigMillis = 0;
-bool ADSRtrig = false;
-unsigned long ADSRVAL = 0;
-bool ADSRrunning;
-long ADSRtimer;
-bool ADSRgate = false;
-bool oldADSRgate = false;
+byte oldADSRdata_send[4] = {0, 0, 0, 0};
+long trigMillis[4] = {0, 0, 0, 0};
+long ADSRtimer[4] = {0, 0, 0, 0};
+bool ADSRtrig[4] = {false, false, false, false};
+unsigned long ADSRVAL[4] = {0, 0, 0, 0};
+unsigned long releasePoint[4] = {0, 0, 0, 0};
+bool ADSRrunning[4] = {false, false, false, false};
+bool ADSRgate[4] = {false, false, false, false};
+bool oldADSRgate[4] = {false, false, false, false};
 #define ADSRdepth 2147483648 //max 31 bit number ADSR output will be 10 bit in CV and 7 bit in MIDI
-byte ADSRstep = 0; // 0 = A   1 = D   2 = S   3 = R
+bool ADSRstep[4] = {false, false, false, false};  //false is attack true is decay
 
 
 int A = 100;    //millis
@@ -23,39 +25,47 @@ unsigned long S = ADSRdepth / 2;  //0-1024 for 10bit CV (>>3 for 7bit CC)
 int R = 200;   //millis
 unsigned long releaseStep = 0;
 
-unsigned long releasePoint = 0;
-
-
-
 unsigned long millisTicker = 0;
 
 void handleADSR() {
-  if (oldRaw[ARCADE1] > 512) {
-    ADSRgate = true;
-  } else {
-    ADSRgate = false;
+  if(SHIFT){
+  A = oldRaw[lfoWaveKnob] + 2;
+  D = (oldRaw[lfoDepthKnob] << 1) + 2;
+  S = oldRaw[lfoFreqKnob] + 2; //scale 10bit to 31bit
+  S = S << 21;
+  R = (oldRaw[lfoOffsetKnob] << 1) + 2;
   }
 
+  for (int i = 0; i < 4; i++) {
 
-  if (ADSRgate && !oldADSRgate) { //if we are detecting a transition from low to high
-    triggerADSR();
-    Serial.println("TRIGGERED!!!");
-    oldADSRgate = true;
-  } else if (oldADSRgate && !ADSRgate) {
-    Serial.println("released");
-    releasePoint = ADSRVAL;
-    oldADSRgate = false;
+    if (oldRaw[ARCADE1 + i] > 512) {
+      ADSRgate[i] = true;
+    } else {
+      ADSRgate[i] = false;
+    }
+
+
+
+    if (ADSRgate[i] && !oldADSRgate[i]) { //if we are detecting a transition from low to high
+      ADSRrunning[i] = true;
+      trigMillis[i] = millis();
+      ADSRstep[i] = 0;
+      triggerADSR(i);
+      Serial.println("TRIGGERED!!!");
+      oldADSRgate[i] = true;
+    } else if (oldADSRgate[i] && !ADSRgate[i]) { //if we are detecting a transition from high to low
+      Serial.println("released");
+      oldADSRgate[i] = false;
+      trigMillis[i] = millis();
+      releasePoint[i] = ADSRVAL[i];
+    }
+    ADSR(i);
   }
-  ADSR();
 }
 
 
 
-void triggerADSR() {
-  ADSRrunning = true;
-  updateAnimationStepSizes();
-  trigMillis = millis();
-  ADSRstep = 0;
+void triggerADSR(int i) {
   Serial.print("   ATTACK = ");
   Serial.print(A);
   Serial.print("   DECAY = ");
@@ -66,7 +76,7 @@ void triggerADSR() {
   Serial.println(R);
 }
 
-void updateAnimationStepSizes() {
+void updateAnimationStepSizes(int i) {
   attackStep =  ADSRdepth / A; //calculate how far ADSR needs to step per frame
   decayStep = (ADSRdepth - S) / D; //how far the decay needs to travel every step
   releaseStep = S / R; //how far release needs to fall every step
@@ -75,69 +85,82 @@ void updateAnimationStepSizes() {
 }
 
 
-byte ADSR() {
-  A = oldRaw[lfoWaveKnob] + 1;
-  D = (oldRaw[lfoDepthKnob] << 1) + 1;
-  S = oldRaw[lfoFreqKnob] + 1; //scale 10bit to 31bit
-  S = S << 21 + 1;
-  R = oldRaw[lfoOffsetKnob] + 1 << 1;
-
-
-
-  if (ADSRrunning) {
-    updateAnimationStepSizes();
+byte ADSR(int i) {
+  if (ADSRrunning[i]) {
+    updateAnimationStepSizes(i);
     if (millis() > millisTicker) {
       millisTicker = millis();
-      ADSRtimer = millisTicker - trigMillis;
+      ADSRtimer[i] = millisTicker - trigMillis[i];
       //     Serial.print(  ADSRtimer  );
 
-      if (ADSRgate) {
+      if (ADSRgate[i]) {
 
 
         ////////////ATTACK/////////
 
-        if (ADSRstep == 0) {                                   //If we are in ATTACK step
-          Serial.print("attackStep = ");
-          Serial.print(attackStep);
-          Serial.print("  ATTACK  ");
-          ADSRVAL += attackStep;
+        if (!ADSRstep[i]) {                                   //If we are in ATTACK step
+          //   Serial.print("attackStep = ");
+          //   Serial.print(attackStep);
+          //    Serial.print("  ATTACK  ");
+          //    Serial.println(ADSRtimer[i]);
+          //          ADSRVAL[i] += attackStep;
+          ADSRVAL[i] = attackStep * ADSRtimer[i];
           //          ADSRVAL = constrain(ADSRVAL, 0, ADSRdepth - 1);
-          if (ADSRVAL > ADSRdepth) {
-            ADSRVAL = ADSRdepth;
-            ADSRstep = 1;                                              //flag transition do decay
+          if (ADSRVAL[i] > ADSRdepth - attackStep) {
+            ADSRVAL[i] = ADSRdepth;
+            ADSRstep[i] = true;                                              //flag transition do decay
+            trigMillis[i] = millisTicker;                                   //reset timer
           }
           /////////// DECAY SUSTAIN ///////////
-        } else if (ADSRstep == 1) {                           //If we are in DECAY step
-          Serial.print("decayStep = ");
-          Serial.print(decayStep);
-          Serial.print("  DECAY   ");
-          if (ADSRVAL != S) {
-            ADSRVAL -= decayStep; // pull ADSRVAL down to the sustain LEVEL
-            if (ADSRVAL < S + decayStep) { //if we are going to roll past 0
-              ADSRVAL = S;
+        } else if (ADSRstep[i]) {                           //If we are in DECAY step
+          //  Serial.print("decayStep = ");
+          //   Serial.print(decayStep);
+          //    Serial.print("  DECAY   ");
+          //    Serial.println(ADSRtimer[i]);
+          if (ADSRVAL[i] != S) {
+            ADSRVAL[i] = ADSRdepth - (decayStep * ADSRtimer[i]); // pull ADSRVAL down to the sustain LEVEL
+            if (ADSRVAL[i] < S && ADSRVAL > (ADSRdepth + 10)) { //if we have passed sustain level or rolled around
+              ADSRVAL[i] = S;
             }
-            //ADSRVAL = constrain(ADSRVAL, S, ADSRdepth);      //make sure we dont pass the sustain level   //if statement should effectively constrain this beyotch
           }
         }
 
         ///////////////RELEASE///////
       }  else { //IF GATE IS RELEASED!
-        Serial.print("releaseStep = ");
-        Serial.print(releaseStep);
-        Serial.print("  RELEASE ");
-        if (ADSRVAL < (releaseStep)) { // if we have got all the way back to 0
-          ADSRVAL = 0;
-          ADSRrunning = false;
+        // Serial.print("releaseStep = ");
+        // Serial.print(releaseStep);
+        // Serial.print("  RELEASE ");
+
+        ADSRVAL[i] = releasePoint[i] - (releaseStep * ADSRtimer[i]);
+        //Serial.print(" ADSRVAL -> ");
+        //Serial.print(ADSRVAL[i]);
+        //Serial.println(" <- ADSRVAL ");
+        if (ADSRVAL[i] > (ADSRdepth + 10)) { // if we have rolled around
+          ADSRVAL[i] = 0;
+          ADSRrunning[i] = false;
           Serial.println( " STOPPED " );
-        } else {
-          ADSRVAL = ADSRVAL - releaseStep;
         }
+
+
 
         //code for return to 0
       }
-      cvOUT(ADSRVAL >> 21);
 
-      Serial.println(ADSRVAL);
+
+      cvOUT(ADSRVAL[3] >> 21);
+      byte data_send = ADSRVAL[i] >> 24;
+      if (data_send != oldADSRdata_send[i]) {
+        byte CCnumber = DATA1[ARCADE1 + i + 16]; //read CCnumber off the mythical plexor4 last 4 values
+        byte midiChannel = midiCh[ARCADE1 + 16 + i]; //not to be confused with midiCHANNEL !!
+        sendUCC(CCnumber, data_send, midiChannel);
+        sendHCC(CCnumber, data_send, midiChannel);
+        Serial.print(ADSRtimer[i]);
+        Serial.print(" ADSR no.");
+        Serial.print(i);
+        Serial.print(" = ");
+        Serial.println(data_send);
+        oldADSRdata_send[i] = data_send;
+      }
     }
   }
 }
