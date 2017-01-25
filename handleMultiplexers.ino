@@ -1,4 +1,4 @@
-bool ADSRenabled = !false;
+
 
 void handleMultiplexers() {
   for (int i = 0; i < 8; i++) {//loop 8 times, one for each input on the plexers
@@ -14,7 +14,7 @@ void handleMultiplexers() {
       }
 
 
-if(ADSRenabled && (arrayCursor >= ARCADE1 && arrayCursor <= ARCADE4)){
+if(ArcadeMute && (arrayCursor >= ARCADE1 && arrayCursor <= ARCADE4)){
 //  do nothing no sending any data
 oldRaw[arrayCursor]=val;
 
