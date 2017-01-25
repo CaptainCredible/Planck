@@ -13,31 +13,24 @@ bool ADSRstep[4] = {false, false, false, false};  //false is attack true is deca
 
 int A = 100;    //millis
 unsigned long attackStep = 0;
-
-
 int D = 100;   //millis
 unsigned long decayStep = 0;
-
-
 unsigned long S = ADSRdepth / 2;  //0-1024 for 10bit CV (>>3 for 7bit CC)
-
-
 int R = 200;   //millis
 unsigned long releaseStep = 0;
-
 unsigned long millisTicker = 0;
 
 void handleADSR() {
-  if(SHIFT){
-  A = oldRaw[lfoWaveKnob] + 2;
-  D = (oldRaw[lfoDepthKnob] << 1) + 2;
-  S = oldRaw[lfoFreqKnob] + 2; //scale 10bit to 31bit
-  S = S << 21;
-  R = (oldRaw[lfoOffsetKnob] << 1) + 2;
+  Serial.println(millis());
+  if (SHIFT) {
+    A = oldRaw[lfoWaveKnob] + 2;
+    D = (oldRaw[lfoDepthKnob] << 1) + 2;
+    S = oldRaw[lfoFreqKnob] + 2; //scale 10bit to 31bit
+    S = S << 21;
+    R = (oldRaw[lfoOffsetKnob] << 1) + 2;
   }
 
   for (int i = 0; i < 4; i++) {
-
     if (oldRaw[ARCADE1 + i] > 512) {
       ADSRgate[i] = true;
     } else {
@@ -85,13 +78,15 @@ void updateAnimationStepSizes(int i) {
 }
 
 
-byte ADSR(int i) {
+void ADSR(int i) {
+ 
   if (ADSRrunning[i]) {
     updateAnimationStepSizes(i);
-    if (millis() > millisTicker) {
-      millisTicker = millis();
+   unsigned long millisNow = millis();
+    if (millisNow > millisTicker) {
+      millisTicker = millisNow;
       ADSRtimer[i] = millisTicker - trigMillis[i];
-      //     Serial.print(  ADSRtimer  );
+      //Serial.print(  ADSRtimer  );
 
       if (ADSRgate[i]) {
 
@@ -138,16 +133,12 @@ byte ADSR(int i) {
         if (ADSRVAL[i] > (ADSRdepth + 10)) { // if we have rolled around
           ADSRVAL[i] = 0;
           ADSRrunning[i] = false;
-          Serial.println( " STOPPED " );
+     //     Serial.println( " STOPPED " );
         }
-
-
-
-        //code for return to 0
       }
-
-
+      if(envToCV){
       cvOUT(ADSRVAL[3] >> 21);
+      }
       byte data_send = ADSRVAL[i] >> 24;
       if (data_send != oldADSRdata_send[i]) {
         byte CCnumber = DATA1[ARCADE1 + i + 16]; //read CCnumber off the mythical plexor4 last 4 values

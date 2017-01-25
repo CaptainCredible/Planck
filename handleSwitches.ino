@@ -1,10 +1,9 @@
 void handleSwitches() {
 
-bool tits = digitalReadFast(presetSwitch);
-Serial.println(tits);
 
   //PRESET SWITCH
-  if (digitalReadFast(presetSwitch) == LOW && presetState) {
+
+  if (!digitalRead(presetSwitch)&& presetState) {
     Serial.println("toggled to 1");
     presetState = false;
     Preset = 0;
@@ -17,7 +16,7 @@ Serial.println(tits);
 
     //digitalWriteFast(out1, presetState);
 
-  } else if (digitalRead(presetSwitch) == HIGH && !presetState) {
+  } else if (digitalRead(presetSwitch) && !presetState) {
     presetState = true;
     Serial.println("toggled to 2");
     Preset = 500;                     // i could remove one of these two variables, presetState is boolean and Preset is the eeprom offset for the preset
