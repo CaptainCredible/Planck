@@ -315,7 +315,6 @@ void setup() {
   MIDI.turnThruOff();
 #endif
 
-delay(5000);
   if (EEPROM.read(400) == 123) {                    //check if presets have been (succesfully) written to EEPROM (the last thing Toolman Sysex editor does is write 123 to adress 400)
     PRESET1 = true;                                 //use the fucking presets
   } else {
