@@ -37,7 +37,7 @@ void loop() {
     //   }
 
 
-    if (!lfoOnState && !ADSROnState) {                                                 // if LFO and ADSR are off 
+    if (!lfoOnState && !ADSROnState) {                                                 // if LFO and ADSR are off
       if (((millis() - onTime) > 100) && (ledPinState)) {              // Handle midi activity LED
         digitalWriteFast(ledPin, LOW);                                 // Turn off led if its that time again
         ledPinState = false;
@@ -103,8 +103,10 @@ void loop() {
             MIDI.sendNoteOn(USBrx.byte2, USBrx.byte3, USBrx.byte1 - 143);
           }
           handleReceiveNoteOn(USBrx.byte2, (USBrx.byte1 - 143), USBrx.byte3); //note - channel - velocity
-          digitalWriteFast(ledPin, HIGH);                                                  //turn on LED
-          onTime = millis(); ledPinState = true;
+
+          //digitalWriteFast(ledPin, HIGH);                                                  //turn on LED
+          //onTime = millis(); ledPinState = true;
+          triggerLED();
           break;
 
         case 8:                                  //its a note off
@@ -112,8 +114,9 @@ void loop() {
             MIDI.sendNoteOff(USBrx.byte2, USBrx.byte3, USBrx.byte1 - 127);
           }
           handleReceiveNoteOff(USBrx.byte2, (USBrx.byte1 - 127)); //note - channel
-          digitalWriteFast(ledPin, HIGH);                                                  //turn on LED
-          onTime = millis(); ledPinState = true;
+          triggerLED();
+          //digitalWriteFast(ledPin, HIGH);                                                  //turn on LED
+          //onTime = millis(); ledPinState = true;
           break;
 
         case 11:                                 //CC
@@ -121,8 +124,9 @@ void loop() {
             MIDI.sendControlChange(USBrx.byte2, USBrx.byte3, USBrx.byte1 - 175);
           }
           handleAllCCreceive(USBrx.byte2, USBrx.byte3);
-          digitalWriteFast(ledPin, HIGH);                                                  //turn on LED
-          onTime = millis(); ledPinState = true;
+          triggerLED();
+          //     digitalWriteFast(ledPin, HIGH);                                                  //turn on LED
+          //     onTime = millis(); ledPinState = true;
           break;
 
         case 14:                              //PITCHBEND

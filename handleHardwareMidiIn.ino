@@ -50,8 +50,9 @@ void handleHardwareMidiIn() {
 #ifdef TURNTHRUOFF
 
 #else
-  digitalWriteFast(ledPin, HIGH);                                                                        //flash the activity led
-  onTime = millis(); ledPinState = true;                                                                                  // write down what time we turned the led on
+  triggerLED();
+  //digitalWriteFast(ledPin, HIGH);                                                                        //flash the activity led
+  //onTime = millis(); ledPinState = true;                                                                                  // write down what time we turned the led on
 #endif
 }
 

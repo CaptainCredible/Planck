@@ -119,9 +119,7 @@ boolean            isFading[3] = {false, false, false};                  // flag
 int                aFadeIsOn = 0;
 #endif
 
-int noteArray[48] {
-  0, 4, 9, 14, 19, 23, 28, 33, 38, 43, 48, 53, 57, 62, 67, 72, 77, 82, 87, 91, 96, 101, 106, 111, 115, 120, 125, 130, 135, 140, 146, 158, 176, 196, 215, 238, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255
-};   //EEPROM ADRESSES 900 - 948   OOOOOOPSIE!!! NEED MORE THAN ONE EEPROM ADRESS TO STORE INTS!!!!!!
+int noteArray[48] {0,15,33,51,71,91,110,129,149,167,186,205,223,242,262,282,302,317,337,356,374,393,412,431,450,469,488,507,526,545,564,583,602,621,640,660,679,697,715,734,755,774,793,811,831,851,871};   //EEPROM ADRESSES 900 - 948 + some others for the other bits of the int
 
 int sexArraySelector = 0;
 byte sexArray[14] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -317,7 +315,7 @@ void setup() {
   MIDI.turnThruOff();
 #endif
 
-
+delay(5000);
   if (EEPROM.read(400) == 123) {                    //check if presets have been (succesfully) written to EEPROM (the last thing Toolman Sysex editor does is write 123 to adress 400)
     PRESET1 = true;                                 //use the fucking presets
   } else {
@@ -377,5 +375,7 @@ void setup() {
 #endif
 
     digitalWrite(ledPin, LOW);
+  } else {
+   // Serial.println("NO STORED VALUES, USING DEFAULT");
   }
 }

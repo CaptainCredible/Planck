@@ -8,12 +8,12 @@ switch (channel) {
     case 1:                                                //dont know why we have to offset by 16, I probably fucked up somewhere else in the code and now i cant be arsed to find the mistake
       digitalWriteFast(out1, HIGH);
       if(CALIBRATED){                                                     //if it's calibrated we can pull the correct duty cycles out of the arraty
+
+      } else {                                                            //if it's not calibrated we can just throw the MIDI pitch out of the back
       if(note>47 && note < 95){
       cvOUT(noteArray[note-48]);
 
       }
-      } else {                                                            //if it's not calibrated we can just throw the MIDI pitch out of the back
-        cvOUT(note*2);
       }
       break;
     case 2:
