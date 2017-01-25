@@ -1,5 +1,4 @@
 #define DEBUG
-
 /*
   PLANCK CODE, By Daniel Lacey-McDermott a.k.a. Captain Credible, the international Space Hero
   -programmable via sysex over DIN or USB
@@ -36,6 +35,7 @@ const boolean LFO = false; //enable or disable LFO
 //boolean PRESETS = false; //enable or disable presets
 boolean PRESET1 = false;//should be true if there is 123 in EEPROM 400
 boolean PRESET2 = false;//should be true if there is 123 in EEPROM 401
+boolean envToCV = false;
 
 /////////////////
 //ROUTING////////
@@ -91,7 +91,7 @@ int PiREZ = 1;
 #define lfoOnSwitch 4
 int DebounceT = 0;
 const byte lfoLedPin = 7;
-const byte mapPin = 15;              //must be set to pullup
+//const byte mapPin = 15;   //must be set to pullup  NOT EXIST ANY MORE!!
 const byte ledPin = 3;    //PLANCK 3
 #define out1 5
 #define out2 6

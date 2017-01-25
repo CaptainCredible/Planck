@@ -8,9 +8,9 @@ void loop() {
 
     handleSwitches();
     handleMultiplexers();                                           //handle the multiplexers
-    if(ADSRenabled){
+//    if(ADSRenabled){
     handleADSR();  
-    }
+//    }
     
     /*
     Serial.print("ARCADE1 = ");
