@@ -8,24 +8,23 @@ void loop() {
 
     handleSwitches();
     handleMultiplexers();                                           //handle the multiplexers
-//    if(ADSRenabled){
-    handleADSR();  
-//    }
-    
+
     /*
-    Serial.print("ARCADE1 = ");
-    Serial.println(oldRaw[ARCADE1]);
-    Serial.print("ARCADE2 = ");
-    Serial.println(oldRaw[ARCADE2]);
-    Serial.print("ARCADE3 = ");
-    Serial.println(oldRaw[ARCADE3]);
-    Serial.print("ARCADE4 = ");
-    Serial.println(oldRaw[ARCADE4]);
+      Serial.print("ARCADE1 = ");
+      Serial.println(oldRaw[ARCADE1]);
+      Serial.print("ARCADE2 = ");
+      Serial.println(oldRaw[ARCADE2]);
+      Serial.print("ARCADE3 = ");
+      Serial.println(oldRaw[ARCADE3]);
+      Serial.print("ARCADE4 = ");
+      Serial.println(oldRaw[ARCADE4]);
     */
     //    handleToggleSwitches();                                         //handle shift and lfo toggle buttons
-    if (lfoOnState) {
-      //digitalWriteFast(ledPin, HIGH);
-      handleLFO();
+    if (lfoOnState) {                                                 //if LFO switch is On and PRESET switch is off
+      handleLFO();                                                      //turn on LFO
+    }
+    if (ADSROnState) {
+      handleADSR();                                                     //if LFO on and Preset on, turn on ADSR
     }
 
 
@@ -33,12 +32,12 @@ void loop() {
 
 
 
- //   if (aFadeIsOn > 0) {                                            // is there a LED fading out
-      //   handleFades();                                                // handle it
- //   }
+    //   if (aFadeIsOn > 0) {                                            // is there a LED fading out
+    //   handleFades();                                                // handle it
+    //   }
 
 
-    if (!lfoOnState) {                                                 // if LFO is off
+    if (!lfoOnState && !ADSROnState) {                                                 // if LFO and ADSR are off 
       if (((millis() - onTime) > 100) && (ledPinState)) {              // Handle midi activity LED
         digitalWriteFast(ledPin, LOW);                                 // Turn off led if its that time again
         ledPinState = false;

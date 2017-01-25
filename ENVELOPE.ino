@@ -21,12 +21,15 @@ unsigned long releaseStep = 0;
 unsigned long millisTicker = 0;
 
 void handleADSR() {
-  Serial.println(millis());
+  //Serial.println(millis());
   if (SHIFT) {
     A = oldRaw[lfoWaveKnob] + 2;
     D = (oldRaw[lfoDepthKnob] << 1) + 2;
     S = oldRaw[lfoFreqKnob] + 2; //scale 10bit to 31bit
     S = S << 21;
+    if (S < 16777217) {
+      S = 0;
+    } //pull S down to zero
     R = (oldRaw[lfoOffsetKnob] << 1) + 2;
   }
 
@@ -71,18 +74,19 @@ void triggerADSR(int i) {
 
 void updateAnimationStepSizes(int i) {
   attackStep =  ADSRdepth / A; //calculate how far ADSR needs to step per frame
-  decayStep = (ADSRdepth - S) / D; //how far the decay needs to travel every step
-  releaseStep = S / R; //how far release needs to fall every step
-
+  // decayStep = (ADSRdepth - S) / D; //how far the decay needs to travel every step
+  decayStep = ADSRdepth / D; //how far the decay needs to travel every step
+  //releaseStep = S / R; //how far release needs to fall every step
+  releaseStep = ADSRdepth / R; //how far release needs to fall every step
 
 }
 
 
 void ADSR(int i) {
- 
+
   if (ADSRrunning[i]) {
     updateAnimationStepSizes(i);
-   unsigned long millisNow = millis();
+    unsigned long millisNow = millis();
     if (millisNow > millisTicker) {
       millisTicker = millisNow;
       ADSRtimer[i] = millisTicker - trigMillis[i];
@@ -133,23 +137,30 @@ void ADSR(int i) {
         if (ADSRVAL[i] > (ADSRdepth + 10)) { // if we have rolled around
           ADSRVAL[i] = 0;
           ADSRrunning[i] = false;
-     //     Serial.println( " STOPPED " );
+          //     Serial.println( " STOPPED " );
         }
       }
-      if(envToCV){
-      cvOUT(ADSRVAL[3] >> 21);
+      if (envToCV) {
+        cvOUT(ADSRVAL[3] >> 21);
       }
       byte data_send = ADSRVAL[i] >> 24;
       if (data_send != oldADSRdata_send[i]) {
+        //int ledBrightCompare = ADSRVAL[i] >> 23;
+        //if (ledBrightCompare > LedBright){
+        LedBright = data_send << 1;
+        analogWrite(ledPin, LedBright);//LedBright
+        Serial.println(S);
+
+        //}
         byte CCnumber = DATA1[ARCADE1 + i + 16]; //read CCnumber off the mythical plexor4 last 4 values
         byte midiChannel = midiCh[ARCADE1 + 16 + i]; //not to be confused with midiCHANNEL !!
         sendUCC(CCnumber, data_send, midiChannel);
         sendHCC(CCnumber, data_send, midiChannel);
-        Serial.print(ADSRtimer[i]);
-        Serial.print(" ADSR no.");
-        Serial.print(i);
-        Serial.print(" = ");
-        Serial.println(data_send);
+        //Serial.print(ADSRtimer[i]);
+        //Serial.print(" ADSR no.");
+        //Serial.print(i);
+        //Serial.print(" = ");
+        //Serial.println(data_send);
         oldADSRdata_send[i] = data_send;
       }
     }

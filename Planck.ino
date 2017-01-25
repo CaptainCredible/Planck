@@ -57,14 +57,15 @@ int calibnotestep = 0;
 bool CALIBRATED = false;
 bool newLfoFreq = false;
 
+bool ArcadeMute = false;
 
 long int shiftBounce = 0;           //debounce timer to avoid shift switch glitch
 long int lfoBounce = 0;             // debounce timer to avoid lfo switch glitch
 bool lastToggleShift = false;       // boolean to remember shift switch state
 bool lastToggleLfo = false;         // boolean to remember lfo switch state
 bool lfoOnState = false;            //boolean to flag lfo on/off state
-bool ADSROnState =true;
-
+bool ADSROnState =false;
+bool lfoSwitchState = false;
 bool presetState = false;            //boolean to flag shift on/off state /presets
 bool SHIFT = false;
 bool ledPinState = false;        // keep track of whether we need to spend precious time digitalWriting the ledPin
