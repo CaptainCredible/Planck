@@ -19,8 +19,8 @@ void CC(int plexer, int rawVal, int current) {
       cc_lfo = DATA1[current];                                                                          //if so, set the LFO CC number to the current CC number
       ch_lfo = midiCh[current];                                                                         //and set the LFO channel to the current channel
 #ifdef DEBUG
-      Serial.print("mapped");                                               //DEBUG
-      Serial.print(DATA1[current]);                                         //report what was mapped
+     // Serial.print("mapped");                                               //DEBUG
+     // Serial.print(DATA1[current]);                                         //report what was mapped
 #endif
     }
 

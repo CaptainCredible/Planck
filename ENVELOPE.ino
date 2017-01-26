@@ -34,7 +34,8 @@ void handleADSR() {
   }
 
   for (int i = 0; i < 4; i++) {
-    if (oldRaw[ARCADE1 + i] > 512) {
+    if (oldRaw[ARCADE1 + i] > 512 | bitRead(midiADSRgate,i)) {
+      
       ADSRgate[i] = true;
     } else {
       ADSRgate[i] = false;
@@ -46,11 +47,11 @@ void handleADSR() {
       ADSRrunning[i] = true;
       trigMillis[i] = millis();
       ADSRstep[i] = 0;
-      triggerADSR(i);
-      Serial.println("TRIGGERED!!!");
+      //triggerADSR(i);         //ALL THIS DOES IS SPIT OUT DATA ABOUT PARAMETERS
+     //// Serial.println("TRIGGERED!!!");
       oldADSRgate[i] = true;
     } else if (oldADSRgate[i] && !ADSRgate[i]) { //if we are detecting a transition from high to low
-      Serial.println("released");
+    // // Serial.println("released");
       oldADSRgate[i] = false;
       trigMillis[i] = millis();
       releasePoint[i] = ADSRVAL[i];
@@ -61,15 +62,15 @@ void handleADSR() {
 
 
 
-void triggerADSR(int i) {
-  Serial.print("   ATTACK = ");
-  Serial.print(A);
-  Serial.print("   DECAY = ");
-  Serial.print(D);
-  Serial.print("   SUSTAIN = ");
-  Serial.print(S);
-  Serial.print("   RELEASE = ");
-  Serial.println(R);
+void triggerADSR(int i) { //all this does is write some shit brah
+ //// Serial.print("   ATTACK = ");
+ //// Serial.print(A);
+ //// Serial.print("   DECAY = ");
+ //// Serial.print(D);
+ //// Serial.print("   SUSTAIN = ");
+ //// Serial.print(S);
+ //// Serial.print("   RELEASE = ");
+ // Serial.println(R);
 }
 
 void updateAnimationStepSizes(int i) {
@@ -98,10 +99,10 @@ void ADSR(int i) {
         ////////////ATTACK/////////
 
         if (!ADSRstep[i]) {                                   //If we are in ATTACK step
-          //   Serial.print("attackStep = ");
-          //   Serial.print(attackStep);
-          //    Serial.print("  ATTACK  ");
-          //    Serial.println(ADSRtimer[i]);
+          //  // Serial.print("attackStep = ");
+          //  // Serial.print(attackStep);
+          //   // Serial.print("  ATTACK  ");
+          //   // Serial.println(ADSRtimer[i]);
           //          ADSRVAL[i] += attackStep;
           ADSRVAL[i] = attackStep * ADSRtimer[i];
           //          ADSRVAL = constrain(ADSRVAL, 0, ADSRdepth - 1);
@@ -112,10 +113,10 @@ void ADSR(int i) {
           }
           /////////// DECAY SUSTAIN ///////////
         } else if (ADSRstep[i]) {                           //If we are in DECAY step
-          //  Serial.print("decayStep = ");
-          //   Serial.print(decayStep);
-          //    Serial.print("  DECAY   ");
-          //    Serial.println(ADSRtimer[i]);
+          // // Serial.print("decayStep = ");
+          //  // Serial.print(decayStep);
+          //   // Serial.print("  DECAY   ");
+          //   // Serial.println(ADSRtimer[i]);
           if (ADSRVAL[i] != S) {
             ADSRVAL[i] = ADSRdepth - (decayStep * ADSRtimer[i]); // pull ADSRVAL down to the sustain LEVEL
             if (ADSRVAL[i] < S && ADSRVAL > (ADSRdepth + 10)) { //if we have passed sustain level or rolled around
@@ -126,9 +127,9 @@ void ADSR(int i) {
 
         ///////////////RELEASE///////
       }  else { //IF GATE IS RELEASED!
-        // Serial.print("releaseStep = ");
-        // Serial.print(releaseStep);
-        // Serial.print("  RELEASE ");
+        //// Serial.print("releaseStep = ");
+        //// Serial.print(releaseStep);
+        //// Serial.print("  RELEASE ");
 
         ADSRVAL[i] = releasePoint[i] - (releaseStep * ADSRtimer[i]);
         //Serial.print(" ADSRVAL -> ");
@@ -137,11 +138,15 @@ void ADSR(int i) {
         if (ADSRVAL[i] > (ADSRdepth + 10)) { // if we have rolled around
           ADSRVAL[i] = 0;
           ADSRrunning[i] = false;
-          //     Serial.println( " STOPPED " );
+          bitClear(midiADSRrunning,i);                                                      //tell the world that if we were keeping the adsr on for midis sake we can turn it off now
+          //    // Serial.println( " STOPPED " );
         }
       }
       if (envToCV) {
-        cvOUT(ADSRVAL[3] >> 21);
+        int CV_OUT = constrain(ADSRVAL[3] >> 21,1,512);
+        
+        //cvOUT(ADSRVAL[3] >> 21);
+        cvOUT(CV_OUT);
       }
       byte data_send = ADSRVAL[i] >> 24;
       if (data_send != oldADSRdata_send[i]) {
@@ -149,7 +154,7 @@ void ADSR(int i) {
         //if (ledBrightCompare > LedBright){
         LedBright = data_send << 1;
         analogWrite(ledPin, LedBright);//LedBright
-        Serial.println(S);
+       //// Serial.println(S);
 
         //}
         byte CCnumber = DATA1[ARCADE1 + i + 16]; //read CCnumber off the mythical plexor4 last 4 values

@@ -1,6 +1,7 @@
 void cvOUT(int CV) {
   TC4H = CV >> 8;
   OCR4D = 0xFF & CV;
+  //Serial.println(CV);
 }
 
 

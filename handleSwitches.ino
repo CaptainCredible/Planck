@@ -1,27 +1,27 @@
 void handleSwitches() {
   //PRESET SWITCH
   if (!digitalReadFast(presetSwitch) && presetState) {
-    Serial.println("toggled to 1");
+   //// Serial.println("toggled to 1");
     presetState = false;
     Preset = 0;
     if (PRESET1) { //ignore this code if we aren't bothered about bloody presets
-      Serial.println("toggled to 1 and found preset");
+     //// Serial.println("toggled to 1 and found preset");
       handlePresets();
     } else {
-      Serial.println("toggled to 1 and didnt find preset");
+     //// Serial.println("toggled to 1 and didnt find preset");
     }
 
     //digitalWriteFast(out1, presetState);
 
   } else if (digitalReadFast(presetSwitch) && !presetState) {
     presetState = true;
-    Serial.println("toggled to 2");
+   //// Serial.println("toggled to 2");
     Preset = 500;                     // i could remove one of these two variables, presetState is boolean and Preset is the eeprom offset for the preset
     if (PRESET2) {                                                  //ignore this code if we aren't bothered about bloody presets
-      Serial.println("toggled to 2 and found preset");
+     //// Serial.println("toggled to 2 and found preset");
       handlePresets();
     } else {
-      Serial.println("toggled to 2 and didnt find preset");
+     //// Serial.println("toggled to 2 and didnt find preset");
     }
     //digitalWriteFast(out1, presetState);
   }
@@ -38,7 +38,7 @@ void handleSwitches() {
     lfoOnState = false;
     ADSROnState = false;
     ArcadeMute = false;
-    Serial.println("LFO / ADSR off");
+   //// Serial.println("LFO / ADSR off");
     lfoSwitchState = false;
   }
 
@@ -48,10 +48,10 @@ void handleSwitches() {
     if (SHIFT) {
       ADSROnState = true;
       ArcadeMute = true;
-      Serial.println("ADSR on");
+     //// Serial.println("ADSR on");
     } else {
       lfoOnState = true;
-      Serial.println("LFO on");
+     //// Serial.println("LFO on");
     }
     lfoSwitchState = true;
   }

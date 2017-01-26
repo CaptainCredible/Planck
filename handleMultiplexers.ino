@@ -13,13 +13,13 @@ void handleMultiplexers() {
         handleCalibration(val);
       }
 
+ArcadeMute = false;
+      if (ArcadeMute && (arrayCursor >= ARCADE1 && arrayCursor <= ARCADE4)) {
+        //  do nothing no sending any data
+        oldRaw[arrayCursor] = val;
 
-if(ArcadeMute && (arrayCursor >= ARCADE1 && arrayCursor <= ARCADE4)){
-//  do nothing no sending any data
-oldRaw[arrayCursor]=val;
-
-      //DETECT SHIFT
-    } else if (arrayCursor == 5) { //is it shift button?
+        //DETECT SHIFT
+      } else if (arrayCursor == 5) { //is it shift button?
         if (val > 500 && !SHIFT) {
 
           SHIFT = true;
@@ -27,7 +27,7 @@ oldRaw[arrayCursor]=val;
             CALIBRATE--;
             cvOUT(CALIBRATE);
 #ifdef DEBUG
-            Serial.println(CALIBRATE);
+           //// Serial.println(CALIBRATE);
 #endif
           }
         } else if (val <= 500 && SHIFT) {
@@ -44,7 +44,7 @@ oldRaw[arrayCursor]=val;
           if (CalibrationMode) {          //are we in calibration mode?
             CALIBRATE++;                    //up the CALIBRATE value by one
 #ifdef DEBUG                                //DEBUG
-            Serial.println(CALIBRATE);      //DEBUG
+           //// Serial.println(CALIBRATE);      //DEBUG
 #endif                                        //DEBUG
             cvOUT(CALIBRATE);                 //set the cvOUT to the new CALIBRATE LEVEL
           }
@@ -72,15 +72,17 @@ oldRaw[arrayCursor]=val;
 
   if (millis() - mapTimer > 1000 && MAP && !CVlfo) {                                  //check if MAP has been held in for 1000 milliseconds
     CVlfo = true;                                                                     //set the LFO to CV out!
+    envToCV = true;
 
 #ifdef DEBUG                                                                          //DEBUG
-    Serial.println("CVLFO YES");                                                      //DEBUG
+   //// Serial.println("CVLFO YES");                                                      //DEBUG
 #endif                                                                                //DEBUG
 
   } else if (millis() - mapTimer < 1000 && MAP && CVlfo) {
     CVlfo = false;
+    envToCV = false;
 #ifdef DEBUG
-    Serial.println("CVLFO NO");
+   //// Serial.println("CVLFO NO");
 #endif
     //digitalWrite(out2, LOW);
     cvOUT(0);                                                                         //SET CV OUTPUT TO ZERO WHEN CVLFO IS TURNED OFF

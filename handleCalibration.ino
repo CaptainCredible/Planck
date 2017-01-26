@@ -3,8 +3,8 @@ void handleCalibration(int val) {
   if (calibnotestep > 47) {                                      //if we are at the end of calibration
     EEPROM.write(1000, 123);                                     //write calibrated flag
 #ifdef DEBUG
-    Serial.print("wrote magic");                                //debug
-    Serial.println(EEPROM.read(1000));                           //debug check
+   // Serial.print("wrote magic");                                //debug
+   // Serial.println(EEPROM.read(1000));                           //debug check
 #endif
 
     for (int var = 0; var < 144; var++) {                                         //scan through stored values
@@ -46,14 +46,14 @@ void handleCalibration(int val) {
 
 
   if (arrayCursor == 8 || arrayCursor == 9 ) {  // check for "store" buttons
-    // Serial.println(val);
+    //// Serial.println(val);
     if (val > 500) {
       noteArray[calibnotestep] = CALIBRATE;
 #ifdef DEBUG
-      Serial.print("Note number - ");
-      Serial.print(calibnotestep);
-      Serial.print("set as");
-      Serial.println(CALIBRATE);
+     // Serial.print("Note number - ");
+     // Serial.print(calibnotestep);
+     // Serial.print("set as");
+     // Serial.println(CALIBRATE);
 #endif
       EEPROM.write(900 + calibnotestep * 2, CALIBRATE >> 8);
       EEPROM.write(901 + calibnotestep * 2, 0xFF & CALIBRATE);

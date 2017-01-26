@@ -10,21 +10,27 @@ void loop() {
     handleMultiplexers();                                           //handle the multiplexers
 
     /*
-      Serial.print("ARCADE1 = ");
-      Serial.println(oldRaw[ARCADE1]);
-      Serial.print("ARCADE2 = ");
-      Serial.println(oldRaw[ARCADE2]);
-      Serial.print("ARCADE3 = ");
-      Serial.println(oldRaw[ARCADE3]);
-      Serial.print("ARCADE4 = ");
-      Serial.println(oldRaw[ARCADE4]);
+     // Serial.print("ARCADE1 = ");
+     // Serial.println(oldRaw[ARCADE1]);
+     // Serial.print("ARCADE2 = ");
+     // Serial.println(oldRaw[ARCADE2]);
+     // Serial.print("ARCADE3 = ");
+     // Serial.println(oldRaw[ARCADE3]);
+     // Serial.print("ARCADE4 = ");
+     // Serial.println(oldRaw[ARCADE4]);
     */
     //    handleToggleSwitches();                                         //handle shift and lfo toggle buttons
     if (lfoOnState) {                                                 //if LFO switch is On and PRESET switch is off
       handleLFO();                                                      //turn on LFO
     }
-    if (ADSROnState) {
+   //// Serial.println(midiADSRrunning);
+    
+    
+    
+    
+    if (ADSROnState | midiADSRrunning) {
       handleADSR();                                                     //if LFO on and Preset on, turn on ADSR
+       //// Serial.print(" handled ADSR ");
     }
 
 
