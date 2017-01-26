@@ -15,6 +15,7 @@ void Note(int plexer, int rawVal, int current) {
           }
           if (SHIFT && (!lfoOnState || current > 3)) {                                                      //is shift pushed in and LFO is off or or its not an lfo control?
             midiCHANNEL = (midiCHANNEL + 2) % 16;                                              //offset channel by 2 and roll around if it goes beyond 16
+           // Serial.println(" huehuehue "); 
           }
           sendUNon(DATA1[current], DATA2[current], midiCHANNEL);
           sendHNon(DATA1[current], DATA2[current], midiCHANNEL);

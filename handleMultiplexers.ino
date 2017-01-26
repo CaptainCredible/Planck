@@ -13,7 +13,10 @@ void handleMultiplexers() {
         handleCalibration(val);
       }
 
-ArcadeMute = false;
+      if (ADSROnState) {
+        ArcadeMute = SHIFT;
+      }
+
       if (ArcadeMute && (arrayCursor >= ARCADE1 && arrayCursor <= ARCADE4)) {
         //  do nothing no sending any data
         oldRaw[arrayCursor] = val;
@@ -27,7 +30,7 @@ ArcadeMute = false;
             CALIBRATE--;
             cvOUT(CALIBRATE);
 #ifdef DEBUG
-           //// Serial.println(CALIBRATE);
+            //// Serial.println(CALIBRATE);
 #endif
           }
         } else if (val <= 500 && SHIFT) {
@@ -44,7 +47,7 @@ ArcadeMute = false;
           if (CalibrationMode) {          //are we in calibration mode?
             CALIBRATE++;                    //up the CALIBRATE value by one
 #ifdef DEBUG                                //DEBUG
-           //// Serial.println(CALIBRATE);      //DEBUG
+            //// Serial.println(CALIBRATE);      //DEBUG
 #endif                                        //DEBUG
             cvOUT(CALIBRATE);                 //set the cvOUT to the new CALIBRATE LEVEL
           }
@@ -75,14 +78,14 @@ ArcadeMute = false;
     envToCV = true;
 
 #ifdef DEBUG                                                                          //DEBUG
-   //// Serial.println("CVLFO YES");                                                      //DEBUG
+    //// Serial.println("CVLFO YES");                                                      //DEBUG
 #endif                                                                                //DEBUG
 
   } else if (millis() - mapTimer < 1000 && MAP && CVlfo) {
     CVlfo = false;
     envToCV = false;
 #ifdef DEBUG
-   //// Serial.println("CVLFO NO");
+    //// Serial.println("CVLFO NO");
 #endif
     //digitalWrite(out2, LOW);
     cvOUT(0);                                                                         //SET CV OUTPUT TO ZERO WHEN CVLFO IS TURNED OFF

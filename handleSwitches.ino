@@ -47,7 +47,7 @@ void handleSwitches() {
   if (!lfoSwitchState && digitalReadFast(lfoOnSwitch)) {  // if we are going from off to on
     if (SHIFT) {
       ADSROnState = true;
-      ArcadeMute = true;
+      //ArcadeMute = true;
      //// Serial.println("ADSR on");
     } else {
       lfoOnState = true;

@@ -22,8 +22,8 @@
 #define ARCADE3 14
 #define ARCADE4 15
 
-#define SHIFTBUTTONNO 8
-#define MAPBUTTONNO 9
+#define SHIFTBUTTONNO 8 //8 is NOT CORRECT
+#define MAPBUTTONNO 9  //9 is NOT CORRECT
 #define THEONE 16  //jesus christ, why did I have to call it the one? I cant remember what the fuck this is!
 
 #define HIGHSPEED                                           //set to high speed
@@ -31,11 +31,15 @@
 #define TURNTHRUOFF                                       //turn off midi thru
 #define DEBUGMODE                                           // simplified operation for faster development and debug
 #define LEDSTRIPS                                           //use LEDSTRIPS
+
+bool EEPROMCLEAR = false;
 const boolean LFO = false; //enable or disable LFO
 //boolean PRESETS = false; //enable or disable presets
 boolean PRESET1 = false;//should be true if there is 123 in EEPROM 400
 boolean PRESET2 = false;//should be true if there is 123 in EEPROM 401
 boolean envToCV = false;
+byte midiADSRgate = 0;
+byte midiADSRrunning = 0;
 
 /////////////////
 //ROUTING////////
@@ -64,7 +68,7 @@ long int lfoBounce = 0;             // debounce timer to avoid lfo switch glitch
 bool lastToggleShift = false;       // boolean to remember shift switch state
 bool lastToggleLfo = false;         // boolean to remember lfo switch state
 bool lfoOnState = false;            //boolean to flag lfo on/off state
-bool ADSROnState =false;
+bool ADSROnState = false;
 bool lfoSwitchState = false;
 bool presetState = false;            //boolean to flag shift on/off state /presets
 bool SHIFT = false;
@@ -119,7 +123,7 @@ boolean            isFading[3] = {false, false, false};                  // flag
 int                aFadeIsOn = 0;
 #endif
 
-int noteArray[48] {0,15,33,51,71,91,110,129,149,167,186,205,223,242,262,282,302,317,337,356,374,393,412,431,450,469,488,507,526,545,564,583,602,621,640,660,679,697,715,734,755,774,793,811,831,851,871};   //EEPROM ADRESSES 900 - 948 + some others for the other bits of the int
+int noteArray[48] {0, 15, 33, 51, 71, 91, 110, 129, 149, 167, 186, 205, 223, 242, 262, 282, 302, 317, 337, 356, 374, 393, 412, 431, 450, 469, 488, 507, 526, 545, 564, 583, 602, 621, 640, 660, 679, 697, 715, 734, 755, 774, 793, 811, 831, 851, 871}; //EEPROM ADRESSES 900 - 948 + some others for the other bits of the int
 
 int sexArraySelector = 0;
 byte sexArray[14] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -141,7 +145,7 @@ int oldMIDIVal[32] = {                        // to check if the midi val has ch
 
 //Settings for plexers
 byte DATA1[32] = {                        // CC number / note number
-  1, 2, 3, 4, 40, 41, 42, 46,                //plexer1  eeprom addr 0-7 
+  1, 2, 3, 4, 40, 41, 42, 46,                //plexer1  eeprom addr 0-7
   9, 10, 11, 12, 39, 38, 36, 37,        //plexer2   eeprom addr 40 - 47  last four are arcade buttons
   17, 18, 19, 20, 21, 22, 23, 24,      //plexer3    eeprom addr 80-87
   25, 26, 27, 28, 100, 101, 102, 103      //plexer4     eeprom addr 120-127   last four are used as envelope CCs
@@ -151,7 +155,7 @@ byte isNote [32] = {              //note or CC
   0, 0, 0, 0, 1, 1, 1, 1,        //plexer1          eeprom addr 8-15
   0, 0, 0, 0, 1, 1, 1, 1,       //plexer2           eeprom addr 48-55
   0, 0, 0, 0, 0, 0, 0, 0,      //plexer3            eeprom addr 88-95
-  0, 0, 0, 0, 0, 0, 0, 0      //plexer4             eeprom addr 128-135  
+  0, 0, 0, 0, 0, 0, 0, 0      //plexer4             eeprom addr 128-135
 };
 
 byte noteIsOn [32] = {          //DOESN'T NEED STORING IN EEPROM
@@ -265,7 +269,6 @@ MIDI_CREATE_DEFAULT_INSTANCE();                                                 
 
 
 void setup() {
-
   // Magic sauce to do 10-bit register writing.
   // Write TC4H first also when writing to white OCR4A.
   TC4H = 0x03;
@@ -315,6 +318,19 @@ void setup() {
   MIDI.turnThruOff();
 #endif
 
+  handleMultiplexers();
+  if( (oldRaw[ARCADE1]>100) &&(oldRaw[ARCADE2]>100) &&(oldRaw[ARCADE3]>100) &&(oldRaw[ARCADE4]>100) && SHIFT){
+    EEPROMCLEAR = true;                                                                                 //DELETE EVERYTHING IN EEPROM!!!
+  }
+  if (EEPROMCLEAR) {
+digitalWrite(ledPin,HIGH);
+    for (int i = 0 ; i < EEPROM.length() ; i++) {
+      EEPROM.write(i, 0);
+    }
+    digitalWrite(ledPin,LOW);
+  }
+
+
   if (EEPROM.read(400) == 123) {                    //check if presets have been (succesfully) written to EEPROM (the last thing Toolman Sysex editor does is write 123 to adress 400)
     PRESET1 = true;                                 //use the fucking presets
   } else {
@@ -339,8 +355,14 @@ void setup() {
 #ifdef DEBUG
   Serial.begin(115200);
 #endif
+  digitalWrite(ledPin, HIGH);
+  //delay(5000);
   handleMultiplexers();
-  if ( oldMIDIVal[8] > 100 && oldMIDIVal[9] > 100) {
+  //// Serial.println("CALIB");
+  //// Serial.println(oldMIDIVal[SHIFTBUTTONNO]);
+  //// Serial.println(oldMIDIVal[MAPBUTTONNO]);
+  digitalWrite(ledPin, LOW);
+  if ( oldMIDIVal[8] > 64 && oldMIDIVal[9] > 64) {
     CalibrationMode = true;
     CALIBRATE = 1024;
     while (CALIBRATE > 0) {
@@ -361,7 +383,7 @@ void setup() {
 
 #ifdef DEBUG
     for (int i = 0; i < 47; i++) {                                            //DEBUG CODE
-      Serial.println(noteArray[i]);                                           //CHECK NOTE ARRAY
+      //// Serial.println(noteArray[i]);                                           //CHECK NOTE ARRAY
     }
 #endif
 
@@ -369,12 +391,12 @@ void setup() {
 
 #ifdef DEBUG
     for (int i = 0; i < 47; i++) {
-      Serial.println(noteArray[i]);
+      //// Serial.println(noteArray[i]);
     }
 #endif
 
     digitalWrite(ledPin, LOW);
   } else {
-   // Serial.println("NO STORED VALUES, USING DEFAULT");
+    //// Serial.println("NO STORED VALUES, USING DEFAULT");
   }
 }

@@ -23,14 +23,16 @@ void loop() {
     if (lfoOnState) {                                                 //if LFO switch is On and PRESET switch is off
       handleLFO();                                                      //turn on LFO
     }
-   //// Serial.println(midiADSRrunning);
+  // Serial.println(ArcadeMute);
     
     
     
     
-    if (ADSROnState | midiADSRrunning) {
+    if (ADSROnState || midiADSRrunning) {
       handleADSR();                                                     //if LFO on and Preset on, turn on ADSR
-       //// Serial.print(" handled ADSR ");
+    //   Serial.print(midiADSRrunning);
+    //   Serial.println(" handled ADSR ");
+       
     }
 
 
@@ -147,5 +149,5 @@ void loop() {
   } while (USBrx.header != 0);
 
 
-  //Serial.println(presetState);
+  Serial.println(EEPROMCLEAR);
 }

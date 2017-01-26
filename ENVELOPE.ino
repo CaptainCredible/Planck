@@ -143,7 +143,7 @@ void ADSR(int i) {
         }
       }
       if (envToCV) {
-        int CV_OUT = constrain(ADSRVAL[3] >> 21,1,512);
+        int CV_OUT = constrain(ADSRVAL[3] >> 21,0,1023);
         
         //cvOUT(ADSRVAL[3] >> 21);
         cvOUT(CV_OUT);

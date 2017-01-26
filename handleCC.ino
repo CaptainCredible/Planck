@@ -26,14 +26,14 @@ void CC(int plexer, int rawVal, int current) {
 
 
     if (oldMIDIVal[current] != data_send) {                                                //has the MIDI value changed?
-      if (lfoOnState && SHIFT && current < 4) {                                            //is the LFO on? do we want to ignore LFO knobs? HEY THIS WONT WORK IF WE REMAP THE CC to note!
+      if ((lfoOnState || ADSROnState) && SHIFT && current < 4) {                           //is the LFO on? do we want to ignore LFO knobs? HEY THIS WONT WORK IF WE REMAP THE CC to note (but who would want to do that?)!
         lfoControls[current] = rawVal;                                                     //harvest the Raw Values for use as higher rez LFO controls
       } else if (!PRESET2 && presetState) {                                                //is the preset switch flipped but no preset is stored?
         midiCHANNEL = (midiCh[current] + 1) % 16;                                          //send MIDI on other channel (not LFO though) 
       } else {                                                                             //if preset is normal
         midiCHANNEL = midiCh[current];                                                     //dont do shit
       }                                                                                     
-      if (SHIFT && (!lfoOnState||current>3)) {                                                          //is shift pushed in and LFO is off or or its not an lfo control? 
+      if (SHIFT && ((!lfoOnState && !ADSROnState)||current>3)) {                                                          //is shift pushed in and LFO and ADSR is off or or its not an lfo control? 
         midiCHANNEL = (midiCHANNEL + 2) % 16;                                              //offset channel by 2 and roll around if it goes beyond 16
       }
       sendUCC(DATA1[current], data_send, midiCHANNEL);
